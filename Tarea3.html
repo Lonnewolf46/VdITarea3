@@ -1,0 +1,685 @@
+<script src="https://d3js.org/d3.v7.min.js"></script>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tarea 3</title>
+</head>
+<body>
+    <div align="center">
+        <h1>Mapa de los Estados Unidos</h1>
+    </div>
+    <div style="margin-left: -1500px; margin-top: 20px; border: 1px solid black;">
+        <!-- Adjust margins -->
+        <svg id="svg" width="2700" height="500" style="background-color:#A9CEDE; enable-background: new 0 0 508.044 508.044;">
+            <rect width="100%" height="100%" fill="transparent"></rect>
+            <g id="container"></g>
+        </svg>
+    </div>
+    <div style="margin-top: 20px;" align="center">
+        <h1>Flare.json</h1>
+        <h2>Treemap</h2>
+    </div>
+    <div>
+        <svg id="FlareDataTree" width="1200" height="1000"></svg>
+    </div>
+    <div style="margin-top: 20px;" align="center">
+        <h2>Radial Layout</h2>
+    </div>
+    <div style="border: 1px solid black;">
+        <svg id="FlareRadialTree" width="1200" height="1200"></svg>
+    </div>
+    <div style="margin-top: 20px;" align="center">
+        <h2>Partition Layout</h2>
+    </div>
+    <div style="border: 1px solid black;">
+        <svg id="FlarePartitionTree" width="1200" height="1000"></svg>
+    </div>
+    <div style="margin-top: 20px;" align="center">
+        <h2>Circle Pack</h2>
+    </div>
+    <div style="border: 1px solid black;">
+        <svg id="FlareCirclePacking" width="1200" height="1200"></svg>
+    </div>
+    <div style="margin-top: 20px;" align="center">
+        <h2>Sunburst</h2>
+    </div>
+    <div style="border: 1px solid black;">
+        <svg id="FlareSunBurst" width="1200" height="1200"></svg>
+    </div>
+
+    <div style="margin-top: 20px;" align="center">
+        <h1>VUE.json</h1>
+        <h2>Treemap</h2>
+    </div>
+    <div>
+        <svg id="VUEDataTree" width="1200" height="1000"></svg>
+    </div>
+    <div style="margin-top: 20px;" align="center">
+        <h2>Radial Layout</h2>
+    </div>
+    <div style="border: 1px solid black;">
+        <svg id="VUERadialTree" width="1200" height="1200"></svg>
+    </div>
+    <div style="margin-top: 20px;" align="center">
+        <h2>Partition Layout</h2>
+    </div>
+    <div style="border: 1px solid black;">
+        <svg id="VUEPartitionTree" width="1200" height="1000"></svg>
+    </div>
+    <div style="margin-top: 20px;" align="center">
+        <h2>Circle Pack</h2>
+    </div>
+    <div style="border: 1px solid black;">
+        <svg id="VUECirclePacking" width="1200" height="1200"></svg>
+    </div>
+    <div style="margin-top: 20px;" align="center">
+        <h2>Sunburst</h2>
+    </div>
+    <div style="border: 1px solid black;">
+        <svg id="VUESunBurst" width="1200" height="1200"></svg>
+    </div>
+
+    <div style="margin-top: 20px;" align="center">
+    <h1>Distritos_CR.json</h1>
+    <h2>Treemap</h2>
+</div>
+<div>
+    <svg id="CRDataTree" width="1200" height="1000"></svg>
+</div>
+<div style="margin-top: 20px;" align="center">
+    <h2>Radial Layout</h2>
+</div>
+<div style="border: 1px solid black;">
+    <svg id="CRRadialTree" width="1200" height="1200"></svg>
+</div>
+<div style="margin-top: 20px;" align="center">
+    <h2>Partition Layout</h2>
+</div>
+<div style="border: 1px solid black;">
+    <svg id="CRPartitionTree" width="1200" height="1000"></svg>
+</div>
+<div style="margin-top: 20px;" align="center">
+    <h2>Circle Pack</h2>
+</div>
+<div style="border: 1px solid black;">
+    <svg id="CRCirclePacking" width="1200" height="1200"></svg>
+</div>
+<div style="margin-top: 20px;" align="center">
+    <h2>Sunburst</h2>
+</div>
+<div style="border: 1px solid black;">
+    <svg id="CRSunBurst" width="1200" height="1200"></svg>
+</div>
+</body>
+
+
+</html>
+
+<script>
+    async function createUSMap() {
+
+        //Retrieving data
+        var stateColors = [
+            "#1f77b4", "#7981B0", "#ff7f0e", "#ffbb78", "#2ca02c", "#98df8a", "#d62728", "#ff9896",
+            "#9467bd", "#c5b0d5", "#8c564b", "#c49c94", "#e377c2", "#f7b6d2", "#7f7f7f", "#c7c7c7",
+            "#bcbd22", "#dbdb8d", "#17becf", "#9E47AD", "#393b79", "#5254a3", "#6b6ecf", "#9c9ede",
+            "#637939", "#8ca252", "#b5cf6b", "#cedb9c", "#8c6d31", "#bd9e39", "#e7ba52", "#e7cb94",
+            "#843c39", "#ad494a", "#d6616b", "#e7969c", "#7b4173", "#a55194", "#ce6dbd", "#de9ed6",
+            "#3182bd", "#6baed6", "#93AF73", "#c6dbef", "#e6550d", "#fd8d3c", "#fdae6b", "#fdd0a2",
+            "#31a354", "#74c476", "#a1d99b", "#c7e9c0", "#756bb1", "#9e9ac8", "#bcbddc", "#dadaeb"
+        ];
+        const dataString = await d3.text('https://gist.githubusercontent.com/Lonnewolf46/f868600ab3d9bec431970fda4a4f20c5/raw/956998e565b74ef3669ecb90b5b41cdcea3ae05d/states_usa.bna');
+        const namesData = await d3.csv('https://gist.githubusercontent.com/Lonnewolf46/7091eb78bbda71850bf243910cdc8840/raw/fa23e0706239657e799cfc970a2e162a26723986/states_names.csv');
+
+        //----------START StateShapes-----------
+        // Split the data string into lines
+        const lines = dataString.split('\n');
+        const data = [];
+        lines.forEach(function (line) {
+            data.push(line.split(','));
+        });
+
+        // Initialize an array to store the parsed data
+        let parsedData = [];
+        var _header = [];
+        var _coordinates = [];
+
+        // Iterate over each line in the data
+        for (var i = 0; i < data.length; i++) {
+            //If encountered a header line
+            if (data[i].length === 3) {
+                //Save the header
+                _header = parseInt(data[i][0]);
+                _coordinates = [];
+                //Iterate over the next lines and add them to the coordinate list
+                for (var y = i + 1; y < i + parseInt(data[i][2]) + 1; y++) {
+                    const lon = ((Math.abs(parseFloat(data[y][0])) * -1) + 200) * 20; //Parse to float, read coodinate, flip it and increase scale of the map
+                    const lat = ((parseFloat(data[y][1]) * -1) + 50) * 20; //Parse to float, read coodinate, flip it and increase scale of the map
+                    _coordinates.push([lon, lat]);
+                }
+                //Push the data array to the parsedData array
+                parsedData.push({ stateNumber: _header, coordinates: _coordinates });
+            }
+        }
+        //----------END StateShapes-----------
+
+        //----------START StateNames-----------
+        const filteredNamesData = [];
+        namesData.forEach(function (d) {
+            filteredNamesData.push({ stateNumber: parseInt(d.ID), Name: d.NAME })
+        });
+
+        const mergeArrays = (parsedData = [], filteredNamesData = []) => {
+            let res = [];
+            res = parsedData.map(obj => {
+                const index = filteredNamesData.findIndex(el => el["stateNumber"] == obj["stateNumber"]);
+                const { Name } = index !== -1 ? filteredNamesData[index] : {};
+                return {
+                    ...obj,
+                    Name
+                };
+            });
+            return res;
+        };
+        const finalMerge = mergeArrays(parsedData, filteredNamesData);
+        //----------END StateNames-----------
+
+
+        // Define the zoom behavior
+        var zoom = d3.zoom()
+            .scaleExtent([1, 8])
+            .on('zoom', zoomed);
+
+        // The 'zoomed' function applies the transformation
+        function zoomed(event) {
+            // Apply the transform to the container group
+            d3.select('#container').attr('transform', event.transform);
+        }
+
+        // Attach the zoom behavior to the SVG
+        d3.select('#svg')
+            .call(zoom);
+
+        // Existing code to draw the map
+        var line = d3.line();
+        var container = d3.select("#container");
+
+        finalMerge.forEach(function (d, i) {
+            // Draw the state path
+            var path = container
+                .append("path")
+                .attr("d", line(d.coordinates))
+                .attr("fill", stateColors[i])
+                .attr("stroke", "#000000");
+
+            // Calculate the centroid of the state path
+            var centroid = path.node().getBBox();
+
+            // Add the state name text at the centroid of the path
+            container
+                .append("text")
+                .attr("x", centroid.x + centroid.width / 2)
+                .attr("y", centroid.y + centroid.height / 2)
+                .text(d.Name)
+                .attr("text-anchor", "middle")
+                .attr("alignment-baseline", "central")
+                .attr("fill", "black"); // Set the text color
+        });
+
+    }
+
+    function replaceHeaders(csvData, oldHeader1, oldHeader2) {
+        // Assuming csvData is an array of objects (loaded from your CSV file)
+        // oldHeader1 and oldHeader2 are the headers you want to replace
+
+        const newData = csvData.map((row) => {
+            const newRow = { ...row }; // Create a shallow copy of the row object
+            newRow.id = newRow[oldHeader1];
+            newRow.value = +newRow[oldHeader2]; // Convert value to a numeric value
+            delete newRow[oldHeader1]; 
+            delete newRow[oldHeader2];
+            return newRow;
+        });
+
+        return newData;
+    }
+
+    // Extract specified columns based on an array of header names
+    function extractColumns(data, columnNames) {
+        return data.map((row) => {
+            const extractedRow = {};
+            columnNames.forEach((columnName) => {
+                extractedRow[columnName] = row[columnName];
+            });
+            return extractedRow;
+        });
+    }
+
+    async function createTree(link, rootName,type, nameSvg, desiredColumns = []) {
+        var dataCSV = await d3.csv(link);
+
+        if (desiredColumns.length !== 0) {
+            var extractedData = extractColumns(dataCSV, desiredColumns);
+            dataCSV = extractedData;
+        }
+
+        const originalHeaders = Object.keys(dataCSV[0]);
+
+        if (originalHeaders[0] != "id" && originalHeaders[1] != "value") {
+            var updatedData = replaceHeaders(dataCSV, originalHeaders[0], originalHeaders[1])
+            dataCSV = updatedData
+        }
+
+        let root = { name: rootName, children: [] };
+        let levels = { 'rootName': root };
+
+        dataCSV.forEach(item => {
+            let path = item.id.split('.');
+            let currentLevel = root;
+
+            // Iterate over the path parts and build the tree structure
+
+            for (let i = 1; i < path.length - 1; i++) { // -1 to avoid an extra node
+                let part = path[i];
+                let partId = path.slice(0, i + 1).join('.');
+
+                if (!levels[partId]) {
+                    let newPart = {
+                        name: part,
+                        children: []
+                    };
+                    levels[partId] = newPart;
+                    currentLevel.children.push(newPart);
+                }
+                currentLevel = levels[partId];
+            }
+
+            // Add the leaf node
+            currentLevel.children.push({
+                name: path[path.length - 1],
+                value: parseInt(item.value)
+            });
+        });
+
+        //Create all the plots
+        //This way we only load the data and parse it once, then reuse it to draw all the plots
+        for (let i = 0; i < type.length; i++) {
+            console.log("Dibujando " + type[i] + " para el SVG " + nameSvg[i]);
+            if (type[i] == "TreeMap") {
+                TreeMap(root, nameSvg[i])
+            }
+            else if (type[i] == "RadialTree") {
+                RadialMap(root, nameSvg[i])
+            }
+            else if (type[i] == "PartitionTree") {
+                PartitionTree(root, nameSvg[i])
+            }
+            else if (type[i] == "CirclePacking") {
+                CirclePackLayout(root, nameSvg[i])
+            }
+            else if (type[i] == "Sunburst") {
+                SunBurst(root, nameSvg[i])
+            }
+        }
+    }
+
+    function TreeMap(root, svgName){
+
+        const color = d3.scaleOrdinal(root.children.map(d => d.name), d3.schemeTableau10);
+        const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
+
+        const svg = d3.select("#" + svgName)
+            .append("svg")
+            .attr("width", 1200)
+            .attr("height", 1000);
+
+        let hierarchy = d3.hierarchy(root)
+            .sum(d => d.value)
+            .sort((a, b) => b.value - a.value);
+
+        const treemap = d3.treemap()
+            .size([1200, 1000])
+            .padding(1)
+            .round(true);
+
+        const root2 = treemap(hierarchy);
+
+        // Draw rectangles for each node
+        const cells = svg.selectAll("g")
+            .data(root2.leaves())
+            .join("g")
+            .attr("transform", d => `translate(${d.x0},${d.y0})`);
+
+        // Append a tooltip.
+        const format = d3.format(",d");
+        cells.append("title")
+            .text(d => `${d.ancestors().reverse().map(d => d.data.name).join(".")}\n${format(d.value)}`);
+
+        cells.append("rect")
+            .attr("width", d => d.x1 - d.x0)
+            .attr("height", d => d.y1 - d.y0)
+            .attr("fill", d => colorScale(d.depth));
+
+        cells.append("rect")
+            .attr("fill", d => { while (d.depth > 1) d = d.parent; return color(d.data.name); })
+            .attr("fill-opacity", 0.6)
+            .attr("width", d => d.x1 - d.x0)
+            .attr("height", d => d.y1 - d.y0);
+
+        cells.append("clipPath")
+            .append("use")
+
+        cells.append("text")
+            .attr("clip-path", d => d.clipUid)
+            .selectAll("tspan")
+            .data(d => d.data.name.split(/(?=[A-Z][a-z])|\s+/g).concat(format(d.value)))
+            .join("tspan")
+            .attr("x", 3)
+            .attr("y", (d, i, nodes) => `${(i === nodes.length - 1) * 0.3 + 1.1 + i * 0.9}em`)
+            .attr("fill-opacity", (d, i, nodes) => i === nodes.length - 1 ? 0.7 : null)
+            .attr("font-size", "10px")
+            .text(d => d);
+    }
+
+    function RadialMap(root, svgName)
+    {
+        let hierarchy = d3.hierarchy(root)
+            .sum(d => d.value)
+            .sort((a, b) => b.value - a.value);
+
+        const tree = d3.tree()
+            .size([2 * Math.PI, Math.min(1200, 1300) / 2 - 30])
+            .separation((a, b) => (a.parent == b.parent ? 1 : 2) / a.depth)
+
+        const root2 = tree(hierarchy);
+
+        const svg = d3.select("#" + svgName)
+            .append("svg")
+            .attr("viewBox", [-(1200 * 0.50), -(1200 * 0.6), 1200, 1300]) //cx, xy, width, height
+            .attr("width", 1200)
+            .attr("height", 1200);
+
+        svg.append("g")
+            .attr("fill", "none")
+            .attr("stroke", "#555")
+            .attr("stroke-opacity", 0.4)
+            .attr("stroke-width", 1.5)
+            .selectAll()
+            .data(root2.links())
+            .join("path")
+            .attr("d", d3.linkRadial()
+                .angle(d => d.x)
+                .radius(d => d.y));
+
+        // Append nodes.
+        svg.append("g")
+            .selectAll()
+            .data(root2.descendants())
+            .join("circle")
+            .attr("transform", d => `rotate(${d.x * 180 / Math.PI - 90}) translate(${d.y},0)`)
+            .attr("fill", d => d.children ? "#555" : "#999")
+            .attr("r", 2.5);
+
+        const maxDepth = root2.height;
+
+        if (root2.descendants().length < 300) {
+            svg.append("g")
+                .attr("stroke-linejoin", "round")
+                .attr("stroke-width", 3)
+                .selectAll()
+                .data(root2.descendants())
+                .join("text")
+                .attr("transform", d => `rotate(${d.x * 180 / Math.PI - 90}) translate(${d.y},0) rotate(${d.x >= Math.PI ? 180 : 0})`)
+                .attr("dy", "0.31em")
+                .attr("x", d => d.x < Math.PI === !d.children ? 6 : -6)
+                .attr("text-anchor", d => d.x < Math.PI === !d.children ? "start" : "end")
+                .attr("paint-order", "stroke")
+                .attr("stroke", "white")
+                .attr("fill", "currentColor")
+                .text(d => d.data.name);
+        }
+        else {
+            svg.append("g")
+                .attr("stroke-linejoin", "round")
+                .attr("stroke-width", 3)
+                .selectAll()
+                .data(root2.descendants().filter(d => (d.depth >= maxDepth - 1) || d.depth === 0)) // Filter leaf nodes with depth >= 3 and root node
+                .join("text")
+                .attr("transform", d => `rotate(${d.x * 180 / Math.PI - 90}) translate(${d.y},0) rotate(${d.x >= Math.PI ? 180 : 0})`)
+                .attr("dy", "0.31em")
+                .attr("x", d => d.x < Math.PI ? 6 : -6) // Adjust x position based on angle
+                .attr("text-anchor", d => d.x < Math.PI ? "start" : "end") // Adjust text-anchor based on angle
+                .attr("paint-order", "stroke")
+                .attr("stroke", "white")
+                .attr("fill", "currentColor")
+                .text(d => d.data.name);
+
+
+   
+        }
+    }
+
+    function PartitionTree(root, svgName)
+    {
+        const color = d3.scaleOrdinal(d3.quantize(d3.interpolateRainbow, root.children.length + 1))
+
+        var arc = d3.arc()
+            .innerRadius(d => d.x0)
+            .outerRadius(d => d.x1);
+
+        const svg = d3.select("#" + svgName)
+            .attr("viewBox", [0, 0, 1200, 1000])
+            .attr("width", 1200)
+            .attr("height", 1000)
+
+        let hierarchy = d3.hierarchy(root)
+            .sum(d => d.value)
+            .sort((a, b) => b.height - a.height || b.value - a.value);
+
+        const partition = d3.partition()
+            .size([1200, 1000])
+            .padding(1)
+
+        const root2 = partition(hierarchy);
+
+        // Append a tooltip.
+        const format = d3.format(",d");
+
+        // Add a cell for each node of the hierarchy.
+        const cell = svg
+            .selectAll()
+            .data(root2.descendants())
+            .join("g")
+            .attr("transform", d => `translate(${d.x0},${d.y0})`);
+
+        cell.append("title")
+            .text(d => `${d.ancestors().map(d => d.data.name).reverse().join("/")}\n${format(d.value)}`);
+
+        // Color the cell with respect to which child of root it belongs to. 
+        cell.append("rect")
+            .attr("width", d => d.x1 - d.x0)
+            .attr("height", d => d.y1 - d.y0)
+            .attr("fill-opacity", 0.6)
+            .attr("fill", d => {
+                if (!d.depth) return "#ccc";
+                while (d.depth > 1) d = d.parent;
+                return color(d.data.name);
+            });
+
+        // Add labels and a title.
+        const text = cell.filter(d => (d.x1 - d.x0) > 16).append("text")
+            .attr("x", 4)
+            .attr("y", 13);
+
+        text.append("tspan")
+            .text(d => d.data.name)
+            .attr("font-size", "10px");
+
+        text.append("tspan")
+            .attr("x", 4) // Set x position for the value
+            .attr("dy", "1.2em") // Move to the next line
+            .attr("fill-opacity", 0.7)
+            .text(d => `${format(d.value)}`)
+            .attr("font-size", "10px");
+    }
+
+    function CirclePackLayout(root, svgName)
+    {
+        const color = d3.scaleOrdinal(d3.quantize(d3.interpolateRainbow, root.children.length + 1))
+        const format = d3.format(",d");
+
+        const pack = d3.pack()
+            .size([1200 - 1 * 2, 1200 - 1 * 2])
+            .padding(3);
+
+        let hierarchy = d3.hierarchy(root)
+            .sum(d => d.value)
+            .sort((a, b) => b.value - a.value);
+
+        const root2 = pack(hierarchy);
+
+        const svg = d3.select("#" + svgName)
+            .attr("viewBox", [0, 0, 1200, 1200])
+            .attr("width", 1200)
+            .attr("height", 1200)
+            .attr("text-anchor", "middle");
+
+        const cell = svg
+            .selectAll()
+            .data(root2.descendants())
+            .join("g")
+            .attr("transform", d => `translate(${d.x},${d.y})`);
+
+        cell.append("title")
+            .text(d => `${d.ancestors().map(d => d.data.name).reverse().join("/")}\n${format(d.value)}`);
+
+        cell.append("circle")
+            .attr("fill-opacity", 0.6)
+            .attr("fill", d => {
+                if (!d.depth) return "#ccc";
+                while (d.depth > 1) d = d.parent;
+                return color(d.data.name);
+            })
+            .attr("r", d => d.r)
+
+        // Add labels and a title.
+        const text = cell
+            .filter(d => !d.children && d.r > 10)
+            .append("text")
+            .attr("x", 0) // Adjust x position if needed
+            .attr("y", 0) // Adjust y position if needed
+
+        text.selectAll("tspan")
+            .data(d => d.data.name.split(/(?=[A-Z][a-z])|\s+/g))
+            .enter()
+            .append("tspan")
+            .attr("x", 0)
+            .attr("dy", (d, i, nodes) => `${i - nodes.length / 2 + 1}em`) // Vertical alignment
+            .text(d => d)
+            .attr("font-size", "10px");
+
+        text.append("tspan")
+            .attr("x", 0)
+            .attr("dy", "1.2em") // Move to the next line
+            .attr("fill-opacity", 0.7)
+            .text(d => format(d.value))
+            .attr("font-size", "10px");
+
+    }
+
+    function SunBurst(root, svgName) {
+
+        const defaultFill = "#ccc"
+        const colorScheme = d3.interpolateSpectral
+        const radius = 1200 / 2;
+
+        const svg = d3.select("#" + svgName)
+            .attr("viewBox", [0, 0, 1200, 1200])
+            .attr("width", 1200)
+            .attr("height", 1200)
+
+        let hierarchy = d3.hierarchy(root)
+            .sum(d => d.value)
+            .sort((a, b) => b.height - a.height || b.value - a.value);
+
+        const partition = d3.partition()
+            .size([2 * Math.PI, radius])  //X,Y
+
+        //Create the new root
+        const root2 = partition(hierarchy);
+
+        //Make the color pallette
+        const color = d3
+            .scaleSequential([0, root2.children.length - 1], colorScheme)
+            .unknown(defaultFill);
+        // give all children of root an identical index for coloration  
+        root2.children.forEach((child, i) => (child.index = i));
+
+        // Construct an arc generator.
+        const arc = d3.arc()
+            .startAngle(d => d.x0)
+            .endAngle(d => d.x1)
+            .padAngle(d => Math.min((d.x1 - d.x0) / 2, 2 * 1 / radius))
+            .padRadius(radius / 2)
+            .innerRadius(d => d.y0)
+            .outerRadius(d => d.y1 - 1);
+
+         const cells = svg
+            .selectAll("a")
+            .data(root2.descendants())
+            .join("a")
+
+        cells.append("path")
+            .attr("d", arc)
+            .attr("fill", color ? d => color(d.ancestors().reverse()[1]?.index) : fill)
+            .attr("fill-opacity", 1);
+
+        cells.append("g")
+            .attr("pointer-events", "none")
+            .attr("text-anchor", "middle")
+            .attr("font-size", 10)
+            .selectAll("text")
+            .data(root2.descendants().filter(d => d.depth && (d.y0 + d.y1) / 2 * (d.x1 - d.x0) > 10))
+            .join("text")
+            .attr("transform", function (d) {
+                const x = (d.x0 + d.x1) / 2 * 180 / Math.PI;
+                const y = (d.y0 + d.y1) / 2;
+                return `rotate(${x - 90}) translate(${y},0) rotate(${x < 180 ? 0 : 180})`;
+            })
+            .attr("dy", "0.35em")
+            .text(d => d.data.name);
+
+    }
+
+
+    // Call the async function to fetch data and draw an US Map
+    createUSMap();
+
+    //All the kinds of trees and layouts we want to create
+    const types = ["TreeMap", "RadialTree", "PartitionTree", "CirclePacking", "Sunburst"]
+
+    //JSON link
+    const flareJson = 'https://gist.githubusercontent.com/Lonnewolf46/dd22c0b49f3afea08769f49709e17926/raw/6519259ad23c60bba6d4b2d54b858b023fd17ab8/flare.json'
+    //The specific SVG names
+    var svgNames = ["FlareDataTree", "FlareRadialTree", "FlarePartitionTree", "FlareCirclePacking", "FlareSunBurst"]
+    //Call the async function to fetch data and create all the specified graphs on the specified svgs
+    createTree(flareJson, 'flare', types, svgNames)
+
+    //JSON link
+    const vueJson = 'https://gist.githubusercontent.com/Lonnewolf46/1d27bdc8a15e70e9e67f89d4e49e8de7/raw/02382e9a31ff1ef8b25eb35ac6c3e3679ebacdfd/vue.json'
+    //The specific SVG names
+    svgNames = ["VUEDataTree", "VUERadialTree", "VUEPartitionTree", "VUECirclePacking", "VUESunBurst"]
+    //Call the async function to fetch data and create all the specified graphs on the specified svgs
+    createTree(vueJson, 'VUE', types, svgNames)
+
+    const districtsJson = 'https://gist.githubusercontent.com/Lonnewolf46/d1d568a0e8ad29fbc29df88f4bdb146b/raw/0701769c9719fe9ff7991f088daf7f32711aa0ff/distritos_cr.json'
+    //The specific SVG names
+    svgNames = ["CRDataTree", "CRRadialTree", "CRPartitionTree", "CRCirclePacking", "CRSunBurst"]
+    //Call the async function to fetch data and create all the specified graphs on the specified svgs
+    createTree(districtsJson, 'Costa Rica', types, svgNames, ["ID", "POBL_2022"])
+
+
+</script>
